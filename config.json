@@ -1,0 +1,5 @@
+{
+  "dataset_path": "~/datasets/musdb18hq",
+  "hdf_path": "./hdf",
+  "sr": 44100
+}
