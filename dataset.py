@@ -204,6 +204,8 @@ class BinaryShuffleDataset(Dataset):
         output_length,
         n_vox=1,
         n_noi=3,
+        alpha_vox=1,
+        alpha_noi=1,
         random_hops=True,
     ):
         super(BinaryShuffleDataset, self).__init__()
@@ -213,6 +215,8 @@ class BinaryShuffleDataset(Dataset):
         self.diff = (input_length - output_length) // 2
         self.n_vox = n_vox
         self.n_noi = n_noi
+        self.a_vox = alpha_vox
+        self.a_noi = alpha_noi
         if random_hops:
             self.random_hops = output_length // 2
         else:
@@ -282,12 +286,14 @@ class BinaryShuffleDataset(Dataset):
             if vocals is False:
                 vocals = self.getitem(self.indexes_vocals[i][index], "vocals")
             else:
-                vocals += self.getitem(self.indexes_vocals[i][index], "vocals")
+                if random.random() < self.a_vox:
+                    vocals += self.getitem(self.indexes_vocals[i][index], "vocals")
         for i in range(self.n_noi):
             if noise is False:
                 noise = self.getitem(self.indexes_drums[i][index], "noise")
             else:
-                noise += self.getitem(self.indexes_drums[i][index], "noise")
+                if random.random() < self.a_noi:
+                    noise += self.getitem(self.indexes_drums[i][index], "noise")
 
         mix = vocals + noise
 
