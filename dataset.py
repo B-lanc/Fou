@@ -251,9 +251,14 @@ class BinaryShuffleDataset(Dataset):
         pad_front = 0
         pad_back = 0
 
-        track_idx = self.starts.bisect_right(index)
-        if track_idx > 0:
-            index = index - self.starts[track_idx - 1]
+        if inst == "vocals":
+            track_idx = self.starts_vox.bisect_right(index)
+            if track_idx > 0:
+                index = index - self.starts_vox[track_idx - 1]
+        else:
+            track_idx = self.starts_noi.bisect_right(index)
+            if track_idx > 0:
+                index = index - self.starts_noi[track_idx - 1]
 
         with h5py.File(self.hdf, "r") as f:
             tl = len(f[inst][f"{track_idx}"])
@@ -284,16 +289,16 @@ class BinaryShuffleDataset(Dataset):
 
         for i in range(self.n_vox):
             if vocals is False:
-                vocals = self.getitem(self.indexes_vocals[i][index], "vocals")
+                vocals = self.getitem(self.indexes_vox[i][index], "vocals")
             else:
                 if random.random() < self.a_vox:
-                    vocals += self.getitem(self.indexes_vocals[i][index], "vocals")
+                    vocals += self.getitem(self.indexes_vox[i][index], "vocals")
         for i in range(self.n_noi):
             if noise is False:
-                noise = self.getitem(self.indexes_drums[i][index], "noise")
+                noise = self.getitem(self.indexes_noi[i][index], "noise")
             else:
                 if random.random() < self.a_noi:
-                    noise += self.getitem(self.indexes_drums[i][index], "noise")
+                    noise += self.getitem(self.indexes_noi[i][index], "noise")
 
         mix = vocals + noise
 

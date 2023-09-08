@@ -53,7 +53,7 @@ class UNet2D(nn.Module):
         self.drop = nn.Dropout(dropout_rate)
 
         if norm.lower() == "bn":
-            norm = nn.BatchNorm1d
+            norm = nn.BatchNorm2d
         elif norm.lower() == "gn":
             norm = nn.GroupNorm
             norm = partial(norm, 8)
@@ -96,7 +96,7 @@ class UNet2D(nn.Module):
                     channels[i + 1],
                     kernel_size=kernel_size,
                     stride=stride,
-                    padding=0,
+                    padding=autopadding,
                 )
             )
             self.us_blocks.append(
@@ -105,7 +105,7 @@ class UNet2D(nn.Module):
                     channels[i],
                     kernel_size=kernel_size,
                     stride=stride,
-                    padding=0,
+                    padding=autopadding,
                 )
             )
             self.ush_blocks.append(
@@ -257,7 +257,7 @@ class MaskUNet2D(nn.Module):
         self.drop = nn.Dropout(dropout_rate)
 
         if norm.lower() == "bn":
-            norm = nn.BatchNorm1d
+            norm = nn.BatchNorm2d
         elif norm.lower() == "gn":
             norm = nn.GroupNorm
             norm = partial(norm, 8)
@@ -300,7 +300,7 @@ class MaskUNet2D(nn.Module):
                     channels[i + 1],
                     kernel_size=kernel_size,
                     stride=stride,
-                    padding=0,
+                    padding=autopadding,
                 )
             )
             self.us_blocks.append(
@@ -309,7 +309,7 @@ class MaskUNet2D(nn.Module):
                     channels[i],
                     kernel_size=kernel_size,
                     stride=stride,
-                    padding=0,
+                    padding=autopadding,
                 )
             )
             self.ush_blocks.append(

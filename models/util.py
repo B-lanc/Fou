@@ -35,7 +35,6 @@ def crop_center2d(source, target):
     else:
         diff = (source.shape[3] - target.shape[3]) // 2
         ax3 = [diff, -diff]
-
     return source[:, :, ax2[0] : ax2[1], ax3[0] : ax3[1]]
 
 

@@ -18,9 +18,9 @@ if __name__ == "__main__":
     LOAD_MODEL = False
     saved = {
         "channels": settings.channels,
-        "n_voices": settings.n_voices,
+        "n_vocals": settings.n_vocals,
         "n_noise": settings.n_noise,
-        "alpha_voices": settings.alpha_vox,
+        "alpha_vocals": settings.alpha_vox,
         "alpha_noise": settings.alpha_noi,
         "kernel_size": settings.kernel,
         "stride": settings.stride,
@@ -53,7 +53,7 @@ if __name__ == "__main__":
         if ans.lower() not in ["y", "yes"]:
             sys.exit()
 
-    model = Fou(
+    model = MaskFou(
         settings.channels,
         settings.kernel,
         settings.stride,
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     )
     if settings.cuda:
         model.cuda()
-    optimizer = Adam(params=model.parameters(), lr=settings.fou_lr)
+    optimizer = Adam(params=model.parameters(), lr=settings.lr)
 
     if settings.loss.lower() == "mse":
         criterion = nn.MSELoss()
@@ -78,6 +78,8 @@ if __name__ == "__main__":
 
     n_params = sum([p.numel() for p in model.parameters()])
     print(f"Amount of parameters: {n_params}")
+    print(f"Number of inputs: {model.input_samples}")
+    print(f"Number of outputs: {model.output_samples}")
 
     train_dataset = BinaryShuffleDataset(
         settings.shuffle_train_hdf,
@@ -92,7 +94,7 @@ if __name__ == "__main__":
         settings.val_hdf, model.input_samples, model.output_samples
     )
     val_dataloader = torch.utils.data.DataLoader(
-        val_dataset, batch_size=settings.fou_batch_size, shuffle=True, num_workers=4
+        val_dataset, batch_size=settings.batch_size, shuffle=True, num_workers=4
     )
 
     state = {
@@ -112,18 +114,18 @@ if __name__ == "__main__":
 
         print(f"LOADING MODEL FROM EPOCH {state['epoch']}")
     print("TRAINING START")
-    while state["bad_epoch"] < settings.fou_epoch_patience:
+    while state["bad_epoch"] < settings.epoch_patience:
         train_dataset.shuffle()
         train_dataloader = torch.utils.data.DataLoader(
             train_dataset,
-            batch_size=settings.fou_batch_size,
+            batch_size=settings.batch_size,
             shuffle=True,
             num_workers=4,
         )
         model.train()
         time_start = time.time()
         avg_loss = 0
-        with tqdm(total=len(train_dataset) // settings.fou_batch_size) as pbar:
+        with tqdm(total=len(train_dataset) // settings.batch_size) as pbar:
             for idx, (x, y) in enumerate(train_dataloader):
                 if settings.cuda:
                     x = x.cuda()
@@ -136,7 +138,7 @@ if __name__ == "__main__":
 
                 optimizer.step()
                 pbar.update(1)
-        avg_loss = avg_loss / (len(train_dataset) // settings.fou_batch_size)
+        avg_loss = avg_loss / (len(train_dataset) // settings.batch_size)
         diff_time = time.time() - time_start
         saved["train_loss"].append(avg_loss)
         saved["train_time"].append(diff_time)
@@ -155,7 +157,7 @@ if __name__ == "__main__":
             preds = model(x)
             loss = criterion(preds, y)
             avg_loss += loss.item()
-        avg_loss = avg_loss / (len(val_dataset) // settings.fou_batch_size)
+        avg_loss = avg_loss / (len(val_dataset) // settings.batch_size)
 
         diff_time = time.time() - time_start
         saved["val_loss"].append(avg_loss)
