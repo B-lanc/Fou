@@ -195,7 +195,7 @@ class NormalShuffleDataset(Dataset):
 
 
 class BinaryShuffleDataset(Dataset):
-    """for basic shuffling with predetermined sources"""
+    """for instead of using predetermined sources, just use vocals and noise"""
 
     def __init__(
         self,
