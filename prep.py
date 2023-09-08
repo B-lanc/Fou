@@ -45,7 +45,7 @@ if __name__ == "__main__":
     test_set = glob.glob(os.path.join(settings.dataset_dir, "test", "*"))
     train_set = train_val_set[:75]
     val_set = train_val_set[75:]
-    CONSECUTIVE_ZEROS = 22050
+    CONSECUTIVE_ZEROS = 88200
 
     # preparing hdf
     if not os.path.exists(settings.hdf_dir):
