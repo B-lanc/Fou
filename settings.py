@@ -1,5 +1,7 @@
 import os
 
+cuda = True
+
 dataset_dir = "/dataset/"
 checkpoint_dir = "/saves/"
 sr = 44100
